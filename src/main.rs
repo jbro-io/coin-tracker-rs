@@ -43,6 +43,7 @@ async fn do_stuff() -> io::Result<()> {
     term.clear_screen()?;
     term.hide_cursor()?;
 
+    let mut message_added = false;
     let mut x = 0u32;
     loop {
         let coin_list = get_coin_data().await;
@@ -52,7 +53,6 @@ async fn do_stuff() -> io::Result<()> {
                 for coin in coins {
                     match coin {
                         _ => {
-                            // println!("{:#?}", coin);
                             table_options.push(vec![
                                 coin.name.cell(),
                                 coin.symbol.to_uppercase().cell().justify(Justify::Left),
@@ -72,6 +72,7 @@ async fn do_stuff() -> io::Result<()> {
             }
             _ => {
                 println!("Im fucked!");
+                message_added = true;
             }
         }
 
@@ -80,7 +81,12 @@ async fn do_stuff() -> io::Result<()> {
         let move_cursor_up = table_options.len() * row_size + header_size;
 
         if x != 0 {
-            term.move_cursor_up(move_cursor_up)?;
+            if message_added {
+                term.move_cursor_up(move_cursor_up + 1);
+                message_added = false;
+            } else {
+                term.move_cursor_up(move_cursor_up)?;
+            }
         }
 
         let table = table_options
@@ -127,7 +133,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         match signal::ctrl_c().await {
             Ok(()) => {
                 term.show_cursor();
-                println!("Ctrl + C Pressed!");
+                println!("Exiting Crypto Tracker...");
                 exit(0);
             }
             Err(e) => {
