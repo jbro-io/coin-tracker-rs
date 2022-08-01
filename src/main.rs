@@ -82,7 +82,7 @@ async fn do_stuff() -> io::Result<()> {
 
         if x != 0 {
             if message_added {
-                term.move_cursor_up(move_cursor_up + 1);
+                term.move_cursor_up(move_cursor_up + 1)?;
                 message_added = false;
             } else {
                 term.move_cursor_up(move_cursor_up)?;
