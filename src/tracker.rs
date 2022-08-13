@@ -36,10 +36,13 @@ async fn do_stuff() -> io::Result<()> {
     loop {
         let coin_list = get_coin_data().await;
         let mut table_options = vec![];
+        let mut portfolio_value = 0.0;
         match coin_list {
             Ok(coins) => {
                 for coin in coins {
                     let position = get_coin_position(&coin.id);
+                    let value = get_coin_position_value(position, coin.current_price);
+                    portfolio_value += value;
                     match coin {
                         _ => {
                             table_options.push(vec![
@@ -55,14 +58,25 @@ async fn do_stuff() -> io::Result<()> {
                                 //     .cell()
                                 //     .justify(Justify::Right),
                                 position.to_string().cell(),
-                                get_currency_cell(get_coin_position_value(
-                                    position,
-                                    coin.current_price,
-                                )),
+                                get_currency_cell(value),
                             ]);
                         }
                     }
                 }
+
+                // add footer
+                table_options.push(vec![
+                    "".cell(),
+                    "".cell(),
+                    "".cell(),
+                    "".cell(),
+                    "".cell(),
+                    "".cell(),
+                    "".cell(),
+                    "".cell(),
+                    "".cell(),
+                    get_currency_cell(portfolio_value),
+                ]);
             }
             _ => {
                 println!("Im fucked!");
@@ -71,8 +85,9 @@ async fn do_stuff() -> io::Result<()> {
         }
 
         let header_size = 4;
+        let footer_size = 2;
         let row_size = 2;
-        let move_cursor_up = table_options.len() * row_size + header_size;
+        let move_cursor_up = table_options.len() * row_size + header_size + footer_size;
 
         if x != 0 {
             if message_added {
