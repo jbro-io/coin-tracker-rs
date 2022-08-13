@@ -1,5 +1,5 @@
 [package]
-name = "coin-tracker-rs"
+name = "coin-tracker"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,3 +13,4 @@ tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 clap = { version="^3.2.17", features = ["derive"] }
+dirs = "4.0.0"
