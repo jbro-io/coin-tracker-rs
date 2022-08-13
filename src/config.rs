@@ -19,7 +19,7 @@ struct Config {
 
 fn get_config_folder_path() -> PathBuf {
     let mut output_path = PathBuf::new();
-    output_path.push(dirs::home_dir().unwrap());
+    output_path.push(home_dir().unwrap());
     output_path.push(".config");
     output_path.push("cointracker");
     output_path
