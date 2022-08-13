@@ -124,6 +124,28 @@ pub fn add_coin(coin_id: &String, position: &Option<f64>) {
     }
 }
 
+/// Updates a coin position
+pub fn update_coin(coin_id: &String, position: &f64) {
+    let mut config = parse_config_file().expect("Error reading config file.");
+    let coin_exists = does_coin_exist(coin_id, &config.coins);
+
+    if coin_exists {
+        for index in 0..config.coins.len() {
+            let coin = &config.coins[index];
+            if &coin.coin_id == coin_id {
+                config.coins[index] = CoinConfig {
+                    coin_id: String::from(coin_id),
+                    position: *position,
+                };
+                update_config_file(config);
+                break;
+            }
+        }
+    } else {
+        println!("Unable to find coin to update");
+    }
+}
+
 /// Removes a coin from the tracker if it exists
 pub fn remove_coin(coin_id: &String) {
     let mut config = parse_config_file().expect("Error reading config file.");

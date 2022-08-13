@@ -1,4 +1,4 @@
-use crate::config::{add_coin, init, list_all_coins, remove_coin};
+use crate::config::{add_coin, init, list_all_coins, remove_coin, update_coin};
 use clap::{Parser, Subcommand};
 use std::error::Error;
 
@@ -24,7 +24,15 @@ enum Commands {
     Add {
         /// CoinGecko coin id
         coin_id: String,
+        /// Optional. The number of tokens you own. Defaults to 0.0
         position: Option<f64>,
+    },
+    /// Updates a coin position
+    Update {
+        /// CoinGecko coin id
+        coin_id: String,
+        /// The number of tokens you own
+        position: f64,
     },
     /// Removes a token from the tracker list
     Remove {
@@ -49,6 +57,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Some(Commands::Add { coin_id, position }) => {
             println!("Adding coin: {:?} {:?}", coin_id, position);
             add_coin(coin_id, position);
+        }
+        Some(Commands::Update { coin_id, position }) => {
+            println!("Updating coin: {:?} {:?}", coin_id, position);
+            update_coin(coin_id, position);
         }
         Some(Commands::Remove { coin_id }) => {
             println!("Removing coin: {:?}", coin_id);
