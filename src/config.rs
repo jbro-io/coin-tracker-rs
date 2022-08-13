@@ -136,6 +136,7 @@ pub fn remove_coin(coin_id: &String) {
     }
 }
 
+/// Lists all the coins in the config file
 pub fn list_all_coins() {
     let config = parse_config_file().expect("Error reading config file.");
 
@@ -145,6 +146,7 @@ pub fn list_all_coins() {
     }
 }
 
+/// Returns all the coins in the config file as a comma separated string
 pub fn get_coins_as_string() -> String {
     let config = parse_config_file().expect("Error reading config file.");
     let mut coin_string = String::new();
