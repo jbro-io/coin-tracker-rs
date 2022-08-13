@@ -52,7 +52,7 @@ fn create_config_file(output_path: PathBuf) {
     );
 
     match write_result {
-        Ok(_) => println!("Config successfully created."),
+        Ok(_) => println!("Config successfully created!"),
         Err(error) => println!("Problem creating config file: {:?}", error),
     }
 }
@@ -94,7 +94,6 @@ fn does_coin_exist(coin_id: &String, coins: &Vec<CoinConfig>) -> bool {
     let mut coin_exists = false;
     for index in 0..coins.len() {
         if &coins[index].coin_id == coin_id {
-            println!("Coin already added to tracker.");
             coin_exists = true;
             break;
         }
@@ -103,17 +102,25 @@ fn does_coin_exist(coin_id: &String, coins: &Vec<CoinConfig>) -> bool {
 }
 
 /// Adds a coin to the tracker if it has not already been added
-pub fn add_coin(coin_id: &String) {
+pub fn add_coin(coin_id: &String, position: &Option<f64>) {
     let mut config = parse_config_file().expect("Error reading config file.");
     let coin_exists = does_coin_exist(coin_id, &config.coins);
 
     if !coin_exists {
-        let new_coin = CoinConfig {
+        let mut new_coin = CoinConfig {
             coin_id: String::from(coin_id),
             position: 0.0,
         };
+
+        match position {
+            Some(_) => new_coin.position = position.unwrap(),
+            None => {}
+        }
+
         config.coins.push(new_coin);
         update_config_file(config);
+    } else {
+        println!("Coin already added to tracker.");
     }
 }
 
@@ -157,4 +164,17 @@ pub fn get_coins_as_string() -> String {
     // remove trailing comma
     coin_string.pop();
     coin_string
+}
+
+pub fn get_coin_position(coin_id: &String) -> f64 {
+    let config = parse_config_file().expect("Error reading config file.");
+
+    for index in 0..config.coins.len() {
+        let coin = &config.coins[index];
+        if coin_id == &coin.coin_id {
+            return coin.position;
+        }
+    }
+
+    0.0
 }

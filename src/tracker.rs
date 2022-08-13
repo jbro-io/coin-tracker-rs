@@ -1,6 +1,6 @@
 use crate::coin::coin::Coin;
 use crate::coin_table::{get_currency_cell, get_percentage_cell};
-use crate::config::get_coins_as_string;
+use crate::config::{get_coin_position, get_coins_as_string};
 use cli_table::{format::Justify, Cell, Style, Table};
 use console::Term;
 use std::process::exit;
@@ -21,6 +21,10 @@ async fn get_coin_data() -> Result<Vec<Coin>, Box<dyn Error>> {
     Ok(response_body)
 }
 
+fn get_coin_position_value(position: f64, current_price: f64) -> f64 {
+    position * current_price
+}
+
 async fn do_stuff() -> io::Result<()> {
     let term = Term::stdout();
     term.set_title("Crypto Tracker");
@@ -35,6 +39,7 @@ async fn do_stuff() -> io::Result<()> {
         match coin_list {
             Ok(coins) => {
                 for coin in coins {
+                    let position = get_coin_position(&coin.id);
                     match coin {
                         _ => {
                             table_options.push(vec![
@@ -49,6 +54,11 @@ async fn do_stuff() -> io::Result<()> {
                                 // format!(" {}/11", style(x + 1).cyan())
                                 //     .cell()
                                 //     .justify(Justify::Right),
+                                position.to_string().cell(),
+                                get_currency_cell(get_coin_position_value(
+                                    position,
+                                    coin.current_price,
+                                )),
                             ]);
                         }
                     }
@@ -84,7 +94,8 @@ async fn do_stuff() -> io::Result<()> {
                 "".cell().bold(true),
                 "High (24h)".cell().bold(true),
                 "Low (24h)".cell().bold(true),
-                // "Age (in years)".cell().bold(true),
+                "Position".cell().bold(true),
+                "Position Value".cell().bold(true),
             ])
             .bold(true);
 

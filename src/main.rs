@@ -11,7 +11,7 @@ mod tracker;
 #[clap(about, version, author)]
 struct Args {
     #[clap(subcommand)]
-    command: Commands,
+    command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
@@ -24,6 +24,7 @@ enum Commands {
     Add {
         /// CoinGecko coin id
         coin_id: String,
+        position: Option<f64>,
     },
     /// Removes a token from the tracker list
     Remove {
@@ -39,24 +40,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
     match &args.command {
-        Commands::Init => {
+        Some(Commands::Init) => {
             init();
         }
-        Commands::Run => {
+        Some(Commands::Run) => {
             tracker::run_tracker().await?;
         }
-        Commands::Add { coin_id } => {
-            println!("Adding coin: {:?}", coin_id);
-            add_coin(coin_id);
+        Some(Commands::Add { coin_id, position }) => {
+            println!("Adding coin: {:?} {:?}", coin_id, position);
+            add_coin(coin_id, position);
         }
-        Commands::Remove { coin_id } => {
+        Some(Commands::Remove { coin_id }) => {
             println!("Removing coin: {:?}", coin_id);
             remove_coin(coin_id);
         }
-        Commands::List => {
+        Some(Commands::List) => {
             println!("Listing all the coins...");
             list_all_coins();
         }
+        None => tracker::run_tracker().await?,
     }
 
     Ok(())
