@@ -129,3 +129,24 @@ pub fn remove_coin(coin_id: &String) {
         println!("Coin ({:?}) is not currently being tracked", coin_id)
     }
 }
+
+pub fn list_all_coins() {
+    let config = parse_config_file().expect("Error reading config file.");
+
+    for index in 0..config.coins.len() {
+        let coin = &config.coins[index];
+        println!("{:?}", &coin);
+    }
+}
+
+pub fn get_coins_as_string() -> String {
+    let config = parse_config_file().expect("Error reading config file.");
+    let mut coin_string = String::new();
+
+    for index in 0..config.coins.len() {
+        coin_string = coin_string + &config.coins[index].coin_id + ",";
+    }
+    // remove trailing comma
+    coin_string.pop();
+    coin_string
+}
