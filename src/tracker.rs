@@ -15,6 +15,8 @@ use tokio::signal;
 async fn get_coin_data() -> Result<Vec<Coin>, Box<dyn Error>> {
     let base_url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=";
     let url = String::from(base_url) + &get_coins_as_string();
+
+    //TODO: verify coins are in the list before api request
     let response_body = reqwest::get(url).await?.json::<Vec<Coin>>().await?;
     Ok(response_body)
 }

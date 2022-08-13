@@ -2,9 +2,9 @@ use dirs::home_dir;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fs::File;
-use std::io;
 use std::io::BufReader;
 use std::path::PathBuf;
+use std::{fs, io};
 
 #[derive(Deserialize, Serialize, Debug)]
 struct CoinConfig {
@@ -17,18 +17,22 @@ struct Config {
     coins: Vec<CoinConfig>,
 }
 
-fn get_config_path() -> PathBuf {
+fn get_config_folder_path() -> PathBuf {
     let mut output_path = PathBuf::new();
-    //TODO: update to home path
-    // output_path.push(dirs::home_dir().unwrap());
-    // output_path.push(".config");
-    // output_path.push("cointracker");
-    output_path.push("./cointracker_config.json");
+    output_path.push(dirs::home_dir().unwrap());
+    output_path.push(".config");
+    output_path.push("cointracker");
     output_path
 }
 
+fn get_config_file_path() -> PathBuf {
+    let mut path = get_config_folder_path();
+    path.push("cointracker_config.json");
+    path
+}
+
 fn parse_config_file() -> Result<Config, Box<dyn Error>> {
-    let config_path = get_config_path();
+    let config_path = get_config_file_path();
     let file = File::open(config_path)?;
     let reader = BufReader::new(file);
     let data = serde_json::from_reader(reader)?;
@@ -38,7 +42,9 @@ fn parse_config_file() -> Result<Config, Box<dyn Error>> {
 fn create_config_file(output_path: PathBuf) {
     let default_config = Config { coins: vec![] };
 
-    println!("Creating config file at: {:?}", output_path);
+    // create config directory structure if it doesnt already exist
+    let folder = get_config_folder_path();
+    fs::create_dir_all(folder).expect("Error creating config directories");
 
     let write_result = std::fs::write(
         output_path,
@@ -52,7 +58,7 @@ fn create_config_file(output_path: PathBuf) {
 }
 
 fn update_config_file(config: Config) {
-    let output_path = get_config_path();
+    let output_path = get_config_file_path();
     let write_result = std::fs::write(output_path, serde_json::to_string_pretty(&config).unwrap());
 
     match write_result {
@@ -63,7 +69,7 @@ fn update_config_file(config: Config) {
 
 /// Creates a json config file for the tracker if one does not already exist
 pub fn init() {
-    let output_path = get_config_path();
+    let output_path = get_config_file_path();
     if output_path.exists() {
         println!("Config file already exists. Do you want to overwrite the existing file? (y/n)");
         let mut input = String::new();
