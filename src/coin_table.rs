@@ -1,7 +1,4 @@
-use cli_table::{
-    format::{Align, Justify},
-    Cell, CellStruct, Color, Style, Table, WithTitle,
-};
+use cli_table::{format::Justify, Cell, CellStruct};
 use console::style;
 
 pub fn get_percentage_cell(value: f64) -> CellStruct {
@@ -21,7 +18,7 @@ pub fn get_percentage_cell(value: f64) -> CellStruct {
 }
 
 pub fn get_currency_cell(value: f64) -> CellStruct {
-    let mut cell_value = format!("{:.4}", value);
+    let cell_value = format!("{:.4}", value);
 
     if value < 0.0 {
         return format!("{}", style(cell_value).red())
