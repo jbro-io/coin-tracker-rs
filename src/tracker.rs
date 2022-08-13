@@ -1,5 +1,6 @@
 use crate::coin::coin::Coin;
 use crate::coin_table::{get_currency_cell, get_percentage_cell};
+use crate::config::get_coins_as_string;
 use cli_table::{format::Justify, Cell, Style, Table};
 use console::Term;
 use std::process::exit;
@@ -12,15 +13,11 @@ use std::{
 use tokio::signal;
 
 async fn get_coin_data() -> Result<Vec<Coin>, Box<dyn Error>> {
-    let url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,solana,avalanche-2,algorand,render-token,synapse-2,staked-ether,msol,marinade";
+    let base_url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=";
+    let url = String::from(base_url) + &get_coins_as_string();
     let response_body = reqwest::get(url).await?.json::<Vec<Coin>>().await?;
     Ok(response_body)
 }
-
-// struct TableOption {
-//     cell: Box<dyn Cell>,
-//     value: Box<dyn Cell>,
-// }
 
 async fn do_stuff() -> io::Result<()> {
     let term = Term::stdout();
