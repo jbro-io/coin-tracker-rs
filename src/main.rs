@@ -1,4 +1,4 @@
-use crate::config::init;
+use crate::config::{add_coin, init, remove_coin};
 use clap::{Parser, Subcommand};
 use std::error::Error;
 
@@ -46,12 +46,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
             tracker::run_tracker().await?;
         }
         Commands::Add { coin_id } => {
-            //TODO: add the coin to the tracker json file
-            println!("Adding coin id: {:?}", coin_id);
+            println!("Adding coin: {:?}", coin_id);
+            add_coin(coin_id);
         }
         Commands::Remove { coin_id } => {
             //TODO: remove the coin from the tracker json file
-            println!("Removing coin id: {:?}", coin_id);
+            println!("Removing coin: {:?}", coin_id);
+            remove_coin(coin_id);
         }
         Commands::List => {
             //TODO: display all the coins being tracked
