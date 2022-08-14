@@ -1,5 +1,5 @@
-use crate::coin::coin::Coin;
 use crate::coin_table::{get_currency_cell, get_percentage_cell};
+use crate::coingecko::Coin;
 use crate::config::{get_coin_position, get_coins_as_string};
 use cli_table::{format::Justify, Cell, Style, Table};
 use console::Term;
@@ -16,7 +16,6 @@ async fn get_coin_data() -> Result<Vec<Coin>, Box<dyn Error>> {
     let base_url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=";
     let url = String::from(base_url) + &get_coins_as_string();
 
-    //TODO: verify coins are in the list before api request
     let response_body = reqwest::get(url).await?.json::<Vec<Coin>>().await?;
     Ok(response_body)
 }
@@ -25,7 +24,7 @@ fn get_coin_position_value(position: f64, current_price: f64) -> f64 {
     position * current_price
 }
 
-async fn do_stuff() -> io::Result<()> {
+async fn build_table() -> io::Result<()> {
     let term = Term::stdout();
     term.set_title("Crypto Tracker");
     term.clear_screen()?;
@@ -151,7 +150,7 @@ pub async fn run_tracker() -> Result<(), Box<dyn Error>> {
         }
     });
 
-    match do_stuff().await {
+    match build_table().await {
         Ok(t) => t,
         Err(e) => eprintln!("{}", e),
     }

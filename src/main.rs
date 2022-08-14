@@ -2,8 +2,8 @@ use crate::config::{add_coin, init, list_all_coins, remove_coin, update_coin};
 use clap::{Parser, Subcommand};
 use std::error::Error;
 
-mod coin;
 mod coin_table;
+mod coingecko;
 mod config;
 mod tracker;
 
