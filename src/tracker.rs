@@ -20,7 +20,7 @@ async fn get_coin_data() -> Result<Vec<Coin>, Box<dyn Error>> {
     Ok(response_body)
 }
 
-fn get_coin_position_value(position: f64, current_price: f64) -> f64 {
+fn calc_coin_position_value(position: f64, current_price: f64) -> f64 {
     position * current_price
 }
 
@@ -40,27 +40,20 @@ async fn build_table() -> io::Result<()> {
             Ok(coins) => {
                 for coin in coins {
                     let position = get_coin_position(&coin.id);
-                    let value = get_coin_position_value(position, coin.current_price);
+                    let value = calc_coin_position_value(position, coin.current_price);
                     portfolio_value += value;
-                    match coin {
-                        _ => {
-                            table_options.push(vec![
-                                coin.name.cell(),
-                                coin.symbol.to_uppercase().cell().justify(Justify::Left),
-                                get_currency_cell(coin.current_price),
-                                get_currency_cell(coin.price_change_24h),
-                                get_percentage_cell(coin.price_change_percentage_24h),
-                                "".cell(),
-                                coin.high_24h.cell().justify(Justify::Right),
-                                coin.low_24h.cell().justify(Justify::Right),
-                                // format!(" {}/11", style(x + 1).cyan())
-                                //     .cell()
-                                //     .justify(Justify::Right),
-                                position.to_string().cell(),
-                                get_currency_cell(value),
-                            ]);
-                        }
-                    }
+                    table_options.push(vec![
+                        coin.name.cell(),
+                        coin.symbol.to_uppercase().cell().justify(Justify::Left),
+                        get_currency_cell(coin.current_price),
+                        get_currency_cell(coin.price_change_24h),
+                        get_percentage_cell(coin.price_change_percentage_24h),
+                        "".cell(),
+                        coin.high_24h.cell().justify(Justify::Right),
+                        coin.low_24h.cell().justify(Justify::Right),
+                        position.to_string().cell(),
+                        get_currency_cell(value),
+                    ]);
                 }
 
                 // add footer
@@ -78,7 +71,7 @@ async fn build_table() -> io::Result<()> {
                 ]);
             }
             _ => {
-                println!("Im fucked!");
+                eprintln!("Error: Unable to retrieve data from CoinGecko");
                 message_added = true;
             }
         }
@@ -123,16 +116,6 @@ async fn build_table() -> io::Result<()> {
         x += 1;
         thread::sleep(Duration::from_secs(60));
     }
-    // term.show_cursor()?;
-    // term.clear_last_lines(1)?;
-    // term.write_line("Done counting!")?;
-    // writeln!(&term, "Hello World!")?;
-    //
-    // write!(&term, "To edit: ")?;
-    // let res = term.read_line_initial_text("default")?;
-    // writeln!(&term, "\n{}", res)?;
-    //
-    // Ok(())
 }
 
 pub async fn run_tracker() -> Result<(), Box<dyn Error>> {
@@ -145,7 +128,7 @@ pub async fn run_tracker() -> Result<(), Box<dyn Error>> {
                 exit(0);
             }
             Err(e) => {
-                eprintln!("Unable to listen for shutdown signal: {}", e);
+                eprintln!("Error: Unable to listen for shutdown signal: {}", e);
             }
         }
     });
