@@ -48,9 +48,9 @@ async fn build_table() -> io::Result<()> {
                         get_currency_cell(coin.current_price),
                         get_currency_cell(coin.price_change_24h),
                         get_percentage_cell(coin.price_change_percentage_24h),
-                        "".cell(),
                         coin.high_24h.cell().justify(Justify::Right),
                         coin.low_24h.cell().justify(Justify::Right),
+                        "".cell(),
                         position.to_string().cell(),
                         get_currency_cell(value),
                     ]);
@@ -98,9 +98,9 @@ async fn build_table() -> io::Result<()> {
                 "Current Price".cell().bold(true),
                 "Change (24h)".cell().bold(true),
                 "Change% (24h)".cell().bold(true),
-                "".cell().bold(true),
                 "High (24h)".cell().bold(true),
                 "Low (24h)".cell().bold(true),
+                "".cell().bold(true),
                 "Position".cell().bold(true),
                 "Position Value".cell().bold(true),
             ])
