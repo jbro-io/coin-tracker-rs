@@ -89,7 +89,6 @@ async fn execute() -> io::Result<()> {
     term.clear_screen()?;
     term.hide_cursor()?;
 
-    let mut message_added = false;
     let mut x = 0u32;
     loop {
         let coin_list = get_coin_data().await;
@@ -104,12 +103,7 @@ async fn execute() -> io::Result<()> {
                 let move_cursor_up = table_options.len() * row_size + header_size + footer_size;
 
                 if x != 0 {
-                    if message_added {
-                        term.move_cursor_up(move_cursor_up + 1)?;
-                        message_added = false;
-                    } else {
-                        term.move_cursor_up(move_cursor_up)?;
-                    }
+                    term.move_cursor_up(move_cursor_up)?;
                 }
 
                 let table = build_table_with_header(table_options);
@@ -125,8 +119,9 @@ async fn execute() -> io::Result<()> {
                 };
             }
             _ => {
-                eprintln!("Error: Unable to retrieve data from CoinGecko");
-                message_added = true;
+                eprintln!(
+                    "Error retrieving data from CoinGecko. Restarting tracker in 30 seconds."
+                );
 
                 // restart tracker after 30 seconds
                 thread::sleep(Duration::from_secs(30));
