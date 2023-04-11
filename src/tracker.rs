@@ -106,6 +106,7 @@ async fn execute() -> io::Result<()> {
     term.set_title("Crypto Tracker");
     term.clear_screen()?;
     term.hide_cursor()?;
+    let sleep_duration = 60;
 
     loop {
         let coin_list = get_coin_data().await;
@@ -129,7 +130,6 @@ async fn execute() -> io::Result<()> {
                 };
             }
             Err(e) => {
-                let sleep_duration = 60;
                 eprintln!(
                     "Error retrieving data from CoinGecko. Restarting tracker in {:?} seconds.",
                     sleep_duration
@@ -142,7 +142,7 @@ async fn execute() -> io::Result<()> {
             }
         }
 
-        thread::sleep(Duration::from_secs(60));
+        thread::sleep(Duration::from_secs(sleep_duration));
     }
 }
 
