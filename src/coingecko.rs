@@ -9,21 +9,12 @@ pub struct CoinList {
     coins: Vec<Coin>,
 }
 
-#[derive(Serialize, Deserialize, Table, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Coin {
-    #[table(
-        title = "ID",
-        justify = "Justify::Right",
-        align = "Align::Top",
-        color = "Color::Green",
-        bold
-    )]
     pub id: String,
-    #[table(title = "Symbol")]
     pub symbol: String,
     pub name: String,
     // image: String,
-    #[table(title = "Current Price")]
     pub current_price: f64,
     // market_cap: u64,
     // market_cap_rank: u64,

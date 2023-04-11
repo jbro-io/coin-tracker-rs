@@ -17,9 +17,27 @@ use tokio::signal;
 async fn get_coin_data() -> Result<Vec<Coin>, Box<dyn Error>> {
     let base_url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=";
     let url = String::from(base_url) + &get_coins_as_string();
+    // println!("URL: {}", url);
+    // println!("Querying CoinGecko API...");
 
-    let response_body = reqwest::get(url).await?.json::<Vec<Coin>>().await?;
-    Ok(response_body)
+    let client = reqwest::Client::new();
+    let response = client
+        .get(&url)
+        .header("User-Agent", "AmtalCoinTracker")
+        .header("Content-Type", "application/json")
+        .header("Accept", "*/*")
+        .header("Connection", "keep-alive")
+        .send()
+        .await?;
+    // println!("response_headers: {:?}", response.headers());
+
+    let response_body = response.text().await?;
+    // println!("response_body: {:?}", response_body);
+
+    let response_json = serde_json::from_str::<Vec<Coin>>(&response_body)?;
+    // println!("response_json: {:?}", response_json);
+
+    Ok(response_json)
 }
 
 fn calc_coin_position_value(position: f64, current_price: f64) -> f64 {
@@ -89,47 +107,41 @@ async fn execute() -> io::Result<()> {
     term.clear_screen()?;
     term.hide_cursor()?;
 
-    let mut x = 0u32;
     loop {
         let coin_list = get_coin_data().await;
-        let mut table_options = vec![];
         match coin_list {
             Ok(coins) => {
-                table_options = build_coin_rows(coins);
+                let table_options = build_coin_rows(coins);
 
-                let header_size = 4;
-                let footer_size = 3;
-                let row_size = 2;
-                let move_cursor_up = table_options.len() * row_size + header_size + footer_size;
-
-                if x != 0 {
-                    term.move_cursor_up(move_cursor_up)?;
-                }
+                let (h, _w) = term.size();
+                term.move_cursor_up(usize::from(h))?;
 
                 let table = build_table_with_header(table_options);
                 let table_display = table.display().unwrap();
 
                 match term.write_line(&format!("{}", table_display)) {
                     Err(e) => return Err(e),
-                    Ok(t) => {
+                    Ok(_) => {
                         // display last updated at timestamp
                         let now = Local::now();
                         println!("Last updated: {:0}", now);
                     }
                 };
             }
-            _ => {
+            Err(e) => {
+                let sleep_duration = 60;
                 eprintln!(
-                    "Error retrieving data from CoinGecko. Restarting tracker in 30 seconds."
+                    "Error retrieving data from CoinGecko. Restarting tracker in {:?} seconds.",
+                    sleep_duration
                 );
+                eprintln!("{:?}", e);
 
-                // restart tracker after 30 seconds
-                thread::sleep(Duration::from_secs(30));
+                // restart tracker
+                thread::sleep(Duration::from_secs(sleep_duration));
                 execute();
             }
         }
 
-        x += 1;
         thread::sleep(Duration::from_secs(60));
     }
 }
